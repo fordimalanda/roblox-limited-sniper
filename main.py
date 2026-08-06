@@ -224,11 +224,6 @@ if original_price is None:
 # Get RAP from Rolimons
 rap = get_rap(item_id)
 
-if rap is None:
-    print(f"{Yellow.YELLOW4}RAP not found{Style.RESET}")
-else:
-    print(f"{Yellow.YELLOW5}RAP:{Style.RESET} {rap:,} Robux")
-
 
 print(f"\n{Green.GREEN4}Monitoring {Style.BOLD}{item_name}{Style.RESET}")
 print(f"{Yellow.YELLOW5}Starting Price:{Style.RESET} {original_price:,} Robux")
