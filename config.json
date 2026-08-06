@@ -1,0 +1,10 @@
+{
+    "webhook_url": "YOUR_DISCORD_WEBHOOK",
+    "check_interval": 65, 
+    "item_id": 1016143686, 
+    "discount_percent": 10,
+    "open_browser": true,
+    "discord_notifications": true,
+    "windows_notifications": true,
+    "play_sound": true
+}
