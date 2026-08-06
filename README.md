@@ -69,7 +69,7 @@ https://www.python.org/downloads/
 ## 2. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Roblox-Limited-Monitor.git
+git clone https://github.com/vvxlx/roblox-limited-sniper.git
 ```
 
 Enter the folder:
