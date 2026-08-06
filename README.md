@@ -75,7 +75,7 @@ git clone https://github.com/vvxlx/roblox-limited-sniper.git
 Enter the folder:
 
 ```bash
-cd Roblox-Limited-Monitor
+cd roblox-limited-sniper
 ```
 
 ---
