@@ -75,7 +75,7 @@ def send_discord(item_name, item_id, current_price, original_price, discount, ra
         "url": f"https://www.roblox.com/catalog/{item_id}",
 
         "footer": {
-            "text": "Roblox Limited Monitor"
+            "text": "github.com/vvxlx"
         },
 
         "timestamp": datetime.utcnow().isoformat() + "Z"
