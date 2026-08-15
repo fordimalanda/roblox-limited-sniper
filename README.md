@@ -4,6 +4,17 @@ A lightweight, automated Python service designed to track resale prices of Roblo
 
 ---
 
+## Zero Host Dependencies (Container-First)
+
+This project is built container-first. You do **not** need Python, `pip`, or any Python libraries installed on your host computer. When running with Docker or Docker Compose:
+- Docker automatically downloads Python (`python:3.11-slim`) inside the container.
+- Docker executes `pip install -r requirements.txt` internally during the image build process.
+- The application runs completely isolated inside the Docker container.
+
+The only software required on your computer is Docker (or Docker Desktop).
+
+---
+
 ## Key Features
 
 - Automated Resale Price Monitoring: Polls the Roblox Economy API at configurable intervals.
@@ -76,19 +87,21 @@ The application can be configured using `config.json` or by setting environment 
 
 ### Option 1: Running with Docker Compose (Recommended)
 
+No local Python installation required.
+
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/ vvxlx/roblox-limited-sniper.git
+   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
    cd roblox-limited-sniper
    ```
 
 2. Edit `config.json` or set environment variables in your environment.
 
-3. Launch the container service in detached mode:
+3. Launch the container service:
 
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    ```
 
 4. View service logs:
@@ -107,13 +120,15 @@ The application can be configured using `config.json` or by setting environment 
 
 ### Option 2: Running with Docker CLI
 
-1. Build the Docker image:
+No local Python installation required.
+
+1. Build the Docker image (Docker installs Python and pip packages inside the image):
 
    ```bash
    docker build -t roblox-limited-monitor .
    ```
 
-2. Run the container using environment variables:
+2. Run the container:
 
    ```bash
    docker run -d \
@@ -127,19 +142,20 @@ The application can be configured using `config.json` or by setting environment 
 
 ---
 
-### Option 3: Manual Local Setup (Standard Python)
+### Option 3: Manual Local Setup (Optional for Python developers)
+
+If you prefer running directly on your host machine without Docker:
 
 #### Prerequisites
 
-- Python 3.10 or higher
-- `pip` package manager
+- Python 3.10 or higher installed locally
 
 #### Installation Steps
 
-1. Clone the repository and enter the workspace directory:
+1. Clone the repository:
 
    ```bash
-   git clone https://github.com/ vvxlx/roblox-limited-sniper.git
+   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
    cd roblox-limited-sniper
    ```
 
@@ -157,9 +173,7 @@ The application can be configured using `config.json` or by setting environment 
    pip install -r requirements.txt
    ```
 
-4. Configure `config.json` with your parameters.
-
-5. Execute the monitoring script:
+4. Execute the monitoring script:
 
    ```bash
    python main.py
