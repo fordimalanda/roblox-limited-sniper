@@ -1,59 +1,71 @@
-# Roblox Limited Item Monitor
+# Roblox Limited Monitor
 
-A lightweight, automated Python service designed to track resale prices of Roblox Limited items, evaluate discount thresholds against Rolimon's Recent Average Price (RAP), and dispatch instant notifications via Discord webhooks and optional desktop alerts.
+[![CI & Docker Build Check](https://github.com/fordimalanda/roblox-limited-sniper/actions/workflows/ci.yml/badge.svg)](https://github.com/fordimalanda/roblox-limited-sniper/actions/workflows/ci.yml)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
-
-## Zero Host Dependencies (Container-First)
-
-This project is built container-first. You do **not** need Python, `pip`, or any Python libraries installed on your host computer. When running with Docker or Docker Compose:
-- Docker automatically downloads Python (`python:3.11-slim`) inside the container.
-- Docker executes `pip install -r requirements.txt` internally during the image build process.
-- The application runs completely isolated inside the Docker container.
-
-The only software required on your computer is Docker (or Docker Desktop).
+An enterprise-grade, lightweight monitoring daemon built in Python for real-time tracking of Roblox Limited item resale prices. The service evaluates resale listings against Rolimon's Recent Average Price (RAP) metrics and dispatches instant structured telemetry alerts via Discord Webhooks, desktop toasts, and audio cues.
 
 ---
 
-## Key Features
+## Executive Overview
 
-- Automated Resale Price Monitoring: Polls the Roblox Economy API at configurable intervals.
-- Rolimon's RAP Integration: Fetches real-time Recent Average Price (RAP) metrics for accurate valuation.
-- Discord Webhook Alerts: Sends rich embeds containing item thumbnails, current resale price, original price, RAP, discount percentage, and catalog links.
-- Environment Variable & JSON Configuration: Supports 12-Factor application principles for seamless containerized deployments.
-- Docker & Docker Compose Support: Package-ready container deployment with a non-root security context.
-- Cross-Platform Compatibility: Graceful degradation of platform-specific features (such as Windows desktop notifications) when deployed on Linux or headless servers.
+Roblox Limited Monitor provides automated valuation tracking and arbitrage detection for collectible items on the Roblox Marketplace. Designed adhering to 12-Factor App methodology, it runs out of the box as a zero-host-dependency containerized microservice or as a standalone CLI daemon.
+
+### Key Architectural Capabilities
+
+- **Automated Price Telemetry**: Continuously monitors lowest resale prices via official Roblox Economy endpoints.
+- **RAP Market Valuation**: Integrates Rolimon's Market API to correlate resale asking prices against market-verified Recent Average Price (RAP) data.
+- **Multi-Channel Dispatch Engine**: Emits rich Discord embeds with high-resolution thumbnails, precise price deltas, percentage discounts, and deep links.
+- **Zero-Host Container Deployment**: Fully containerized with Python 3.11-slim, pre-packaged dependencies, non-root execution (`appuser`), and multi-stage build optimization.
+- **Dynamic Configuration Layer**: Accepts configuration via standard JSON descriptors or environment variable overrides for Kubernetes and Docker Compose orchestrations.
+- **Fault-Tolerant Platform Abstraction**: Features graceful degradation for platform-specific capabilities (Windows toast notifications, audio playback, browser opening) when executing in headless Linux container environments.
 
 ---
 
-## Architecture Overview
+## System Architecture
 
 ```
-+--------------------------+       +-------------------------+
-|   Roblox Economy API     |       |   Rolimon's Item API    |
-| (Resale Lowest Price)    |       |       (RAP Value)       |
-+------------+-------------+       +------------+------------+
-             |                                  |
-             +----------------+-----------------+
-                              |
-                              v
-             +----------------------------------+
-             |   Roblox Limited Monitor Service |
-             +----------------+-----------------+
-                              |
-                              v
-             +----------------------------------+
-             |     Discord Webhook Dispatch     |
-             +----------------------------------+
++---------------------------+       +----------------------------+
+|    Roblox Economy API     |       |    Rolimon's Item API      |
+|  (Catalog Resale Engine)  |       |     (RAP Data Aggregator)  |
++-------------+-------------+       +-------------+--------------+
+              |                                   |
+              +-----------------+-----------------+
+                                |
+                                v
+             +------------------------------------+
+             |   Roblox Limited Monitor Daemon    |
+             |   (Threshold & Arbitrage Engine)   |
+             +------------------+-----------------+
+                                |
+                                v
+             +------------------------------------+
+             |      Discord Webhook Dispatcher    |
+             +------------------------------------+
 ```
 
 ---
 
-## Configuration
+## Configuration Reference
 
-The application can be configured using `config.json` or by setting environment variables. Environment variables take precedence over settings in `config.json`.
+Configuration is evaluated hierarchically: **Environment Variables** take precedence over **`config.json`** values.
 
-### Configuration Schema (`config.json`)
+### Environment Variables & Parameter Matrix
+
+| Setting Key | Environment Variable | Type | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `webhook_url` | `DISCORD_WEBHOOK_URL` | String | `""` | Target Discord Webhook URL for alerting |
+| `item_id` | `ITEM_ID` | Integer | `1016143686` | Roblox Asset ID of the targeted limited item |
+| `check_interval` | `CHECK_INTERVAL` | Integer | `65` | Polling frequency in seconds (minimum 60s recommended) |
+| `discount_percent` | `DISCOUNT_PERCENT` | Float | `10.0` | Target discount threshold percentage required for alert |
+| `discord_notifications` | `DISCORD_NOTIFICATIONS` | Boolean | `true` | Enable or disable Discord notification dispatches |
+| `windows_notifications` | `WINDOWS_NOTIFICATIONS` | Boolean | `false` | Enable Windows native toast alerts (Windows host only) |
+| `open_browser` | `OPEN_BROWSER` | Boolean | `false` | Auto-launch catalog link in default web browser upon deal |
+| `play_sound` | `PLAY_SOUND` | Boolean | `false` | Trigger audio alert on deal detection (Windows host only) |
+
+### Descriptor File Schema (`config.json`)
 
 ```json
 {
@@ -68,156 +80,132 @@ The application can be configured using `config.json` or by setting environment 
 }
 ```
 
-### Environment Variables
-
-| Variable | Type | Description | Default |
-| :--- | :--- | :--- | :--- |
-| `DISCORD_WEBHOOK_URL` | String | Discord Webhook endpoint URL | None |
-| `ITEM_ID` | Integer | Roblox Asset ID of the limited item | `1016143686` |
-| `CHECK_INTERVAL` | Integer | Polling interval in seconds (minimum 60s recommended) | `65` |
-| `DISCOUNT_PERCENT` | Float | Minimum discount percentage required to trigger alert | `10.0` |
-| `DISCORD_NOTIFICATIONS` | Boolean | Enable or disable Discord webhook dispatch (`true`/`false`) | `true` |
-| `WINDOWS_NOTIFICATIONS` | Boolean | Enable desktop toast notifications on Windows (`true`/`false`) | `false` |
-| `OPEN_BROWSER` | Boolean | Automatically open catalog link in default browser (`true`/`false`) | `false` |
-| `PLAY_SOUND` | Boolean | Play sound alert on deal detection (`true`/`false`) | `false` |
-
 ---
 
-## Deployment & Setup
+## Quick Start Guide
 
-### Option 1: Running with Docker Compose (Recommended)
+### Container Deployment (Docker Compose - Recommended)
 
-No local Python installation required.
+No local Python installation is required. Docker automatically provisions Python, installs dependencies inside the isolated image layer, and executes the process under a non-root security context.
 
-1. Clone the repository:
-
+1. Clone repository:
    ```bash
    git clone https://github.com/fordimalanda/roblox-limited-sniper.git
    cd roblox-limited-sniper
    ```
 
-2. Edit `config.json` or set environment variables in your environment.
+2. Provision configuration (via `config.json` or inline environment variables):
+   ```bash
+   export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/your/webhook/url"
+   ```
 
-3. Launch the container service:
-
+3. Launch daemon:
    ```bash
    docker compose up -d --build
    ```
 
-4. View service logs:
-
+4. Stream runtime logs:
    ```bash
    docker compose logs -f
    ```
 
-5. Stop the container:
-
+5. Stop daemon:
    ```bash
    docker compose down
    ```
 
 ---
 
-### Option 2: Running with Docker CLI
+### Docker CLI Execution
 
-No local Python installation required.
-
-1. Build the Docker image (Docker installs Python and pip packages inside the image):
-
-   ```bash
-   docker build -t roblox-limited-monitor .
-   ```
-
-2. Run the container:
-
-   ```bash
-   docker run -d \
-     --name roblox-monitor \
-     --restart unless-stopped \
-     -e DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
-     -e ITEM_ID=1016143686 \
-     -e DISCOUNT_PERCENT=10 \
-     roblox-limited-monitor
-   ```
+```bash
+docker run -d \
+  --name roblox-limited-monitor \
+  --restart unless-stopped \
+  -e DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/your/webhook/url" \
+  -e ITEM_ID=1016143686 \
+  -e DISCOUNT_PERCENT=10.0 \
+  -e CHECK_INTERVAL=65 \
+  roblox-limited-monitor:latest
+```
 
 ---
 
-### Option 3: Manual Local Setup (Optional for Python developers)
+## Standalone Host Execution (Developer Setup)
 
-If you prefer running directly on your host machine without Docker:
+For environments running outside container orchestration:
 
-#### Prerequisites
+### Requirements
+- Python 3.10+
+- `pip` package manager
 
-- Python 3.10 or higher installed locally
+### Setup Steps
+```bash
+# Initialize virtual environment
+python -m venv .venv
 
-#### Installation Steps
+# Activate environment
+# On Linux/macOS:
+source .venv/bin/activate
+# On Windows PowerShell:
+# .venv\Scripts\Activate.ps1
 
-1. Clone the repository:
+# Install requirements
+pip install -r requirements.txt
 
-   ```bash
-   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
-   cd roblox-limited-sniper
-   ```
-
-2. Create and activate a virtual environment:
-
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate   # On Linux/macOS
-   # .venv\Scripts\activate     # On Windows
-   ```
-
-3. Install required Python packages:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Execute the monitoring script:
-
-   ```bash
-   python main.py
-   ```
+# Run monitor
+python main.py
+```
 
 ---
 
-## API Endpoints Used
+## Continuous Integration & Quality Assurance
 
-### 1. Roblox Economy API
-- Purpose: Retrieves asset metadata and lowest resale price.
-- Endpoint: `https://economy.roblox.com/v2/assets/{item_id}/details`
-
-### 2. Rolimon's Item Details API
-- Purpose: Obtains item Recent Average Price (RAP) metrics.
-- Endpoint: `https://api.rolimons.com/items/v2/itemdetails`
+This repository includes a production GitHub Actions workflow (`.github/workflows/ci.yml`) enforcing:
+- Python abstract syntax tree (AST) compilation validation.
+- JSON configuration schema sanity checks.
+- Isolated container image build verification via Docker Buildx.
 
 ---
 
-## Rate Limiting & Operational Best Practices
+## External Data Services
 
-- Recommended Polling Interval: Keep `CHECK_INTERVAL` at 60 seconds or higher to avoid triggering HTTP 429 Rate Limit responses from Roblox endpoints.
-- Webhook Privacy: Never expose or commit Discord Webhook URLs publicly in source control. Use environment variables for production environments.
+### 1. Roblox Economy v2 API
+- **Endpoint**: `https://economy.roblox.com/v2/assets/{item_id}/details`
+- **Purpose**: Fetches asset metadata, item title, and current lowest resale price (`CollectibleLowestResalePrice`).
+
+### 2. Rolimon's Item Metrics API
+- **Endpoint**: `https://api.rolimons.com/items/v2/itemdetails`
+- **Purpose**: Retrieves current Recent Average Price (RAP) metrics to assess arbitrage value.
 
 ---
 
-## Project File Structure
+## Operational Safeguards & Security
+
+- **Rate Limit Compliance**: Ensure `CHECK_INTERVAL` is maintained at `>= 60` seconds to mitigate HTTP `429 Too Many Requests` responses from upstream APIs.
+- **Secret Isolation**: Webhook URLs must be managed via secret environment variables and never committed to source control.
+- **Container Isolation**: The provided Dockerfile enforces process execution under unprivileged user `appuser` (UID 1000).
+
+---
+
+## Directory Topology
 
 ```
 roblox-limited-sniper/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
-├── .dockerignore
-├── config.json
-├── Dockerfile
-├── docker-compose.yml
-├── main.py
-├── README.md
-└── requirements.txt
+│       └── ci.yml          # GitHub Actions CI workflow
+├── .dockerignore           # Container build exclusion rules
+├── config.json             # Service configuration descriptor
+├── Dockerfile              # OCI container image definition
+├── docker-compose.yml      # Multi-container orchestration specification
+├── main.py                 # Core application entrypoint & monitoring logic
+├── README.md               # Project documentation
+└── requirements.txt        # Python dependency manifest
 ```
 
 ---
 
 ## License
 
-This project is open-source software licensed under the [MIT License](LICENSE).
+Distributed under the MIT License. See `LICENSE` for full terms and conditions.
