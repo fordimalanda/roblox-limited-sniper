@@ -1,6 +1,6 @@
 # Roblox Limited Monitor
 
-[![CI & Docker Build Check](https://github.com/fordimalanda/roblox-limited-sniper/actions/workflows/ci.yml/badge.svg)](https://github.com/fordimalanda/roblox-limited-sniper/actions/workflows/ci.yml)
+[![CI & Docker Build Check](https://github.com/YOUR_GITHUB_USERNAME/roblox-limited-sniper/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/roblox-limited-sniper/actions/workflows/ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -88,9 +88,11 @@ Configuration is evaluated hierarchically: **Environment Variables** take preced
 
 No local Python installation is required. Docker automatically provisions Python, installs dependencies inside the isolated image layer, and executes the process under a non-root security context.
 
-1. Clone repository:
+1. Fork and clone the repository:
+   - Click the **Fork** button at the top right of this GitHub page to create a copy under your account.
+   - Clone your personal fork (replace `YOUR_GITHUB_USERNAME` with your actual GitHub username):
    ```bash
-   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
+   git clone https://github.com/YOUR_GITHUB_USERNAME/roblox-limited-sniper.git
    cd roblox-limited-sniper
    ```
 
