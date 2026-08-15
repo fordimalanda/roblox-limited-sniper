@@ -1,255 +1,206 @@
-# 🎩 Roblox Limited Monitor
+# Roblox Limited Item Monitor
 
-A Python-based Roblox Limited item monitor that tracks resale prices, calculates discounts, gets RAP from Rolimon's API, and sends alerts through Discord.
-
----
-
-# ✨ Features
-
-✅ Monitor Roblox Limited items  
-✅ Get live resale prices from Roblox API  
-✅ Get RAP (Recent Average Price) from Rolimon's API  
-✅ Discord webhook notifications  
-✅ Item thumbnail in Discord embeds  
-✅ Windows desktop notifications  
-✅ Browser auto-open on deals  
-✅ Sound alerts  
-✅ Custom discount percentage  
-✅ Configurable checking interval  
+A lightweight, automated Python service designed to track resale prices of Roblox Limited items, evaluate discount thresholds against Rolimon's Recent Average Price (RAP), and dispatch instant notifications via Discord webhooks and optional desktop alerts.
 
 ---
 
-# 📸 Example Alert
+## Key Features
 
-Discord alert includes:
+- Automated Resale Price Monitoring: Polls the Roblox Economy API at configurable intervals.
+- Rolimon's RAP Integration: Fetches real-time Recent Average Price (RAP) metrics for accurate valuation.
+- Discord Webhook Alerts: Sends rich embeds containing item thumbnails, current resale price, original price, RAP, discount percentage, and catalog links.
+- Environment Variable & JSON Configuration: Supports 12-Factor application principles for seamless containerized deployments.
+- Docker & Docker Compose Support: Package-ready container deployment with a non-root security context.
+- Cross-Platform Compatibility: Graceful degradation of platform-specific features (such as Windows desktop notifications) when deployed on Linux or headless servers.
 
-- Item name
-- Current price
-- Starting price
-- RAP
-- Discount percentage
-- Item ID
-- Roblox catalog link
-- Item thumbnail
+---
 
-Example:
+## Architecture Overview
 
 ```
-🎉 Roblox Deal Found!
-
-White Sparkle Time Fedora
-
-Current Price:
-27,000,000 Robux
-
-Starting Price:
-30,000,000 Robux
-
-RAP:
-3,410,356 Robux
-
-Discount:
-10.00%
++--------------------------+       +-------------------------+
+|   Roblox Economy API     |       |   Rolimon's Item API    |
+| (Resale Lowest Price)    |       |       (RAP Value)       |
++------------+-------------+       +------------+------------+
+             |                                  |
+             +----------------+-----------------+
+                              |
+                              v
+             +----------------------------------+
+             |   Roblox Limited Monitor Service |
+             +----------------+-----------------+
+                              |
+                              v
+             +----------------------------------+
+             |     Discord Webhook Dispatch     |
+             +----------------------------------+
 ```
 
 ---
 
-# ⚙️ Installation
+## Configuration
 
-## 1. Install Python
+The application can be configured using `config.json` or by setting environment variables. Environment variables take precedence over settings in `config.json`.
 
-Python 3.10+ recommended.
-
-Download:
-
-https://www.python.org/downloads/
-
----
-
-## 2. Clone the repository
-
-```bash
-git clone https://github.com/vvxlx/roblox-limited-sniper.git
-```
-
-Enter the folder:
-
-```bash
-cd roblox-limited-sniper
-```
-
----
-
-## 3. Install requirements
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# 🔧 Configuration
-
-Edit `config.json`
-
-Example:
+### Configuration Schema (`config.json`)
 
 ```json
 {
-    "webhook_url": "YOUR_DISCORD_WEBHOOK",
-    "check_interval": 65,
-    "item_id": 1016143686,
-    "discount_percent": 10,
-    "open_browser": true,
-    "discord_notifications": true,
-    "windows_notifications": true,
-    "play_sound": true
+  "webhook_url": "YOUR_DISCORD_WEBHOOK_URL",
+  "check_interval": 65,
+  "item_id": 1016143686,
+  "discount_percent": 10.0,
+  "open_browser": false,
+  "discord_notifications": true,
+  "windows_notifications": false,
+  "play_sound": false
 }
 ```
 
----
+### Environment Variables
 
-# 🔗 Getting a Discord Webhook
-
-1. Open your Discord server
-
-2. Go to:
-
-```
-Server Settings
-→ Integrations
-→ Webhooks
-→ New Webhook
-```
-
-3. Copy the webhook URL
-
-4. Replace:
-
-```
-YOUR_DISCORD_WEBHOOK
-```
-
-with your webhook.
+| Variable | Type | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `DISCORD_WEBHOOK_URL` | String | Discord Webhook endpoint URL | None |
+| `ITEM_ID` | Integer | Roblox Asset ID of the limited item | `1016143686` |
+| `CHECK_INTERVAL` | Integer | Polling interval in seconds (minimum 60s recommended) | `65` |
+| `DISCOUNT_PERCENT` | Float | Minimum discount percentage required to trigger alert | `10.0` |
+| `DISCORD_NOTIFICATIONS` | Boolean | Enable or disable Discord webhook dispatch (`true`/`false`) | `true` |
+| `WINDOWS_NOTIFICATIONS` | Boolean | Enable desktop toast notifications on Windows (`true`/`false`) | `false` |
+| `OPEN_BROWSER` | Boolean | Automatically open catalog link in default browser (`true`/`false`) | `false` |
+| `PLAY_SOUND` | Boolean | Play sound alert on deal detection (`true`/`false`) | `false` |
 
 ---
 
-# ▶️ Running
+## Deployment & Setup
 
-Start the monitor:
+### Option 1: Running with Docker Compose (Recommended)
 
-```bash
-python main.py
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
+   cd roblox-limited-sniper
+   ```
+
+2. Edit `config.json` or set environment variables in your environment.
+
+3. Launch the container service in detached mode:
+
+   ```bash
+   docker compose up -d
+   ```
+
+4. View service logs:
+
+   ```bash
+   docker compose logs -f
+   ```
+
+5. Stop the container:
+
+   ```bash
+   docker compose down
+   ```
+
+---
+
+### Option 2: Running with Docker CLI
+
+1. Build the Docker image:
+
+   ```bash
+   docker build -t roblox-limited-monitor .
+   ```
+
+2. Run the container using environment variables:
+
+   ```bash
+   docker run -d \
+     --name roblox-monitor \
+     --restart unless-stopped \
+     -e DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
+     -e ITEM_ID=1016143686 \
+     -e DISCOUNT_PERCENT=10 \
+     roblox-limited-monitor
+   ```
+
+---
+
+### Option 3: Manual Local Setup (Standard Python)
+
+#### Prerequisites
+
+- Python 3.10 or higher
+- `pip` package manager
+
+#### Installation Steps
+
+1. Clone the repository and enter the workspace directory:
+
+   ```bash
+   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
+   cd roblox-limited-sniper
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # On Linux/macOS
+   # .venv\Scripts\activate     # On Windows
+   ```
+
+3. Install required Python packages:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Configure `config.json` with your parameters.
+
+5. Execute the monitoring script:
+
+   ```bash
+   python main.py
+   ```
+
+---
+
+## API Endpoints Used
+
+### 1. Roblox Economy API
+- Purpose: Retrieves asset metadata and lowest resale price.
+- Endpoint: `https://economy.roblox.com/v2/assets/{item_id}/details`
+
+### 2. Rolimon's Item Details API
+- Purpose: Obtains item Recent Average Price (RAP) metrics.
+- Endpoint: `https://api.rolimons.com/items/v2/itemdetails`
+
+---
+
+## Rate Limiting & Operational Best Practices
+
+- Recommended Polling Interval: Keep `CHECK_INTERVAL` at 60 seconds or higher to avoid triggering HTTP 429 Rate Limit responses from Roblox endpoints.
+- Webhook Privacy: Never expose or commit Discord Webhook URLs publicly in source control. Use environment variables for production environments.
+
+---
+
+## Project File Structure
+
 ```
-
-Example output:
-
-```
-Monitoring White Sparkle Time Fedora
-
-Starting Price: 30,000,000 Robux
-Required Discount: 10%
-
-RAP: 3,410,356 Robux
-
-Alert Price: 27,000,000 Robux
+roblox-limited-sniper/
+├── .dockerignore
+├── config.json
+├── Dockerfile
+├── docker-compose.yml
+├── main.py
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-# 🔌 APIs Used
+## License
 
-## Roblox Economy API
-
-Used for:
-
-- Item information
-- Current resale price
-
-Endpoint:
-
-```
-https://economy.roblox.com/v2/assets/{asset_id}/details
-```
-
----
-
-## Rolimon's API
-
-Used for:
-
-- RAP data
-
-Endpoint:
-
-```
-https://api.rolimons.com/items/v2/itemdetails
-```
-
----
-
-# ⚠️ Notes
-
-- Do not check too frequently.
-- Recommended interval:
-  - 60+ seconds for Roblox price checks
-  - RAP only needs updating occasionally
-
-- Keep your Discord webhook private.
-
----
-
-# 📦 Requirements
-
-Python packages:
-
-```
-requests
-win11toast
-```
-
-Install:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# 🚀 Future Features
-
-Possible improvements:
-
-- Multiple item monitoring
-- Proxy support
-- Value tracking
-- Trade calculator
-- Limited stock alerts
-- Price history graphs
-- GUI version
-
----
-
-# 📜 License
-
-MIT License
-
-Copyright (c) 2026 VVXLX
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+This project is open-source software licensed under the [MIT License](LICENSE).

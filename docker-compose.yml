@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  roblox-limited-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: roblox-limited-monitor
+    restart: unless-stopped
+    volumes:
+      - ./config.json:/app/config.json:ro
+    environment:
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - ITEM_ID=${ITEM_ID:-1016143686}
+      - CHECK_INTERVAL=${CHECK_INTERVAL:-65}
+      - DISCOUNT_PERCENT=${DISCOUNT_PERCENT:-10}
+      - DISCORD_NOTIFICATIONS=${DISCORD_NOTIFICATIONS:-true}

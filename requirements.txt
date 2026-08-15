@@ -1,2 +1,2 @@
-requests
-win11toast
+requests>=2.31.0
+win11toast>=0.3.5; sys_platform == 'win32'
