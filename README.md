@@ -79,7 +79,7 @@ The application can be configured using `config.json` or by setting environment 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
+   git clone https://github.com/ vvxlx/roblox-limited-sniper.git
    cd roblox-limited-sniper
    ```
 
@@ -139,7 +139,7 @@ The application can be configured using `config.json` or by setting environment 
 1. Clone the repository and enter the workspace directory:
 
    ```bash
-   git clone https://github.com/fordimalanda/roblox-limited-sniper.git
+   git clone https://github.com/ vvxlx/roblox-limited-sniper.git
    cd roblox-limited-sniper
    ```
 
