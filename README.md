@@ -204,6 +204,9 @@ If you prefer running directly on your host machine without Docker:
 
 ```
 roblox-limited-sniper/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── .dockerignore
 ├── config.json
 ├── Dockerfile
