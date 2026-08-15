@@ -1,6 +1,6 @@
 # Roblox Limited Monitor
 
-[![CI & Docker Build Check](https://github.com/YOUR_GITHUB_USERNAME/roblox-limited-sniper/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/roblox-limited-sniper/actions/workflows/ci.yml)
+[![CI & Docker Build Check](https://github.com/fordimalanda/roblox-limited-sniper/actions/workflows/ci.yml/badge.svg)](https://github.com/fordimalanda/roblox-limited-sniper/actions/workflows/ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
